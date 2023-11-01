@@ -1,17 +1,21 @@
+# 기본 패키지 
 import streamlit as st
 
-def main():
-  st.title("Streamlit Study!")
-  st.text("Hello World Text")       # 텍스트 출력
-  st.text("한글 사용 여부 확인")    # 한글 사용 가능
-  name = "홍길동" 
-  st.text(f"안녕하세요. {name}님")   # f-string 사용 가능 
+# 위젯
+# Select / Multiple select / Slider
+my_lang = ["Python", "Java", "C++", "Go", "C#"]
+choice = st.selectbox("Choose Language", my_lang)
+st.write(f"You selected {choice}")
 
-  st.header("Header")
-  st.subheader("Subheader")
-  st.title("Title")
-  st.markdown("## Markdown")
-  st.markdown("#### Markdown")
+# Multiple select
+spoken_lang = ("English", "Korean", "Japanese", "Chinese")
+choice = st.multiselect("Spoken Language", spoken_lang, default="Korean")
+st.write(f"You selected {choice}")
 
-if __name__ == "__main__":
-  main()
+# Slider
+age = st.slider("Age", 1, 100)
+st.write(f"Your age is {age}")
+
+# Select Slider
+level = st.select_slider("Level", options=["Beginner", "Intermediate", "Advanced"])
+st.write(f"Your level is {level}")
