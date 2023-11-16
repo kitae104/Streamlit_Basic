@@ -1,33 +1,24 @@
 # 기본 패키지
 import streamlit as st
-from PIL import Image
 
-# 이미지 불러오기
-image = Image.open('data/Logo.png')
+# EDA 패키지
+import pandas as pd
+import numpy as np
 
-# 기본적인 페이지 설정1
-#st.set_page_config(page_title='기태홈', page_icon=image, layout='centered', initial_sidebar_state="auto", menu_items=None)
-
-# 기본적인 페이지 설정2
-# PAGE_CONFIG = {"page_title": "기태홈", "page_icon": image, "layout": "centered"}
-# st.set_page_config(**PAGE_CONFIG)
-
-st.set_page_config(
-    page_title="Ex-stream-ly Cool App",
-    page_icon="🧊",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
-    }
-)
+# 데이터 시각화 패키지 
+import plotly.express as px
 
 
 def main():
-    st.title("Hello Streamlit Lovers 😊")
+    st.title("Plotting In Streamlit with Plotly")
+    df = pd.read_csv("data/prog_languages_data.csv")
+    st.dataframe(df)
 
+    fig = px.pie(df, values='Sum', names='lang', title='Pie Chart of Languages')
+    st.plotly_chart(fig)
+
+    fig2 = px.bar(df, x='lang', y='Sum')
+    st.plotly_chart(fig2)
 
 if __name__ == '__main__':
     main()
