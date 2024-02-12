@@ -25,9 +25,14 @@ HTML_BANNER = """
     </div>
     """
 
+# 이미지 로딩 함수  
+st.cache_data      # 캐시를 사용하여 이미지를 한 번만 로드
+def load_image(image_file):
+    img = Image.open(image_file)
+    return img
 
-def main():
-  # st.title("Metadata Extraction App")
+
+def main():  
   stc.html(HTML_BANNER)
   
   menu = ["Home", "Image", "Audio", "Document", "About"]
@@ -35,7 +40,32 @@ def main():
   
   if choice == "Home":
     st.subheader("Home")
-    st.text("This is a simple metadata extraction app.")    
+    # 이미지
+    st.image(load_image("./images/metadata.png"))
+    # 설명
+    st.write(metadata_wiki)
+    # 확장과 컬럼
+    col1, col2, col3 = st.columns(3)
+    with col1:
+      with st.expander("이미지 메타데이터 📷"):
+        st.info("이미지 메타데이터")
+        st.markdown("📷")
+        st.text("JPEG, JPG, PNG, GIF 이미지 업로드")
+        
+    with col2:
+      with st.expander("오디오 메타데이터 🔉"):
+        st.info("오디오 메타데이터")
+        st.markdown("🔉")
+        st.text("Mp3, Ogg 업로드")
+        
+    with col3:
+      with st.expander("문서 메타데이터 📄"):
+        st.info("문서 메타데이터")
+        st.markdown("📄")
+        st.text("PDF, Docx 업로드")
+        
+    
+    
   elif choice == "Image":
     st.subheader("Image Metadata Extraction")
   elif choice == "Audio":
