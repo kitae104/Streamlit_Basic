@@ -1,32 +1,24 @@
 # -*- coding: utf-8 -*-
+# 체크 박스 사용하기
 import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
+import numpy as np
 
-@st.cache_data    # 캐시 사용
-def load_data():
-  df = sns.load_dataset("tips")
-  return df
+
 
 def main():
-  st.title("Matplotlip 다루기")  
-
-  tips = load_data()
-  st.table(tips.describe())        # 테이블로 표시 
-
-  # 데이터 가공 
-  m_tips = tips.loc[tips['sex'] == "Male"]
-  f_tips = tips.loc[tips['sex'] == "Female"]
-
-  # 시각화 차트
-  fig, ax = plt.subplots(ncols=2, figsize=(10, 6), sharey=True, sharex=True)
-  ax[0].scatter(m_tips['total_bill'], m_tips['tip'], color="blue")
-  ax[0].set_title("남자")
-  ax[1].scatter(m_tips['total_bill'], m_tips['tip'], color="red")
-  ax[1].set_title("여자")
-  st.pyplot(fig)          # plt.show() 대신 사용
-
+  st.title("체크 박스 다루기")  
+  x = np.linspace(0, 10, 100)
+  y = np.sin(x)
+  
+  show_plot = st.checkbox("시각화 보여주기")
+  
+  fig, ax = plt.subplots()
+  ax.plot(x, y)
+  
+  if show_plot:     # 체크 박스 클릭이 된 경우 
+    st.pyplot(fig)
+  
 if __name__ == '__main__':
   main() 
 
