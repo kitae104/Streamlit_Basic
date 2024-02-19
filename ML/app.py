@@ -1,71 +1,66 @@
 # -*- coding: utf-8 -*-
-# 사이킷런 기본 예제 
+# 데이터 셋 처리하기 
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score # 평가 지표(분류)
+
 import streamlit as st
 import pandas as pd
 import seaborn as sns
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-import plotly.graph_objects as go
 
-# 데이터 로드 함수 
 @st.cache_data    # 캐시 사용
 def load_data():
   df = sns.load_dataset("tips")
   return df
 
-@st.cache_resource   # 캐시 사용
-def run_model(data, max_depth, min_samples_leaf):
-  #특성과 타겟 분리 
-  X = data[['total_bill', 'size']]
-  y = data['tip']
-  
-  # 훈련/테스트 데이터 분리
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-  st.write('선택된 max_depth:', max_depth, '& min_samples_leaf:', min_samples_leaf)
-  
-  random_search = {'max_depth': [i for i in range(max_depth[0], max_depth[1])], 'min_samples_leaf': [min_samples_leaf]}
-  
-  clf = RandomForestRegressor()
-  model = RandomizedSearchCV(estimator=clf, param_distributions=random_search, n_iter=10, cv=4, verbose=1, n_jobs=-1, random_state=42)
-  return model.fit(X_train, y_train), X_test, y_test
-
-def predication(model, X_test, y_test):
-  # 예측 
-  y_test_pred = model.predict(X_test)
-  # 성능 평가 
-  test_mae = mean_absolute_error(y_test, y_test_pred)
-  r2 = r2_score(y_test, y_test_pred)
-  
-  return y_test_pred, test_mae, r2
-
-def prediction_plot(X_test, y_test, y_test_pred, test_mae, r2):
-  # 그래프 그리기 
-  fig = go.Figure()
-  fig.add_trace(go.Scatter(x=X_test['total_bill'], y=y_test, mode='markers', name='test', marker=dict(color='red')))
-  fig.add_trace(go.Scatter(x=X_test['total_bill'], y=y_test_pred, mode='markers', name='prediction', marker=dict(color='blue')))
-  fig.update_layout(title='Tip Prediction with RandomForestRegressor', xaxis_title='Total_bill', yaxis_title='Test')  
-  
-  st.plotly_chart(fig)
-  
 def main():
-  st.title('RandomForestRegressor 예제')
-  st.subheader('데이터셋: tips')
+  st.title("Dataset 전처리")  
+
+  tips = load_data()
+  st.dataframe(tips.head(), use_container_width=True)
+
+  # 데이터 가공(성별을 문자에서 숫자로 변경 0 = Female, 1 = Male) 
+  y = tips['sex'].apply(lambda x: 1 if x == 'Male' else 0) 
+  X = tips.drop('sex', axis=1)
+
+  st.write("* 데이터의 형태 확인 :  ")
+  st.write(f"tips.shape = {tips.shape}, X.shpae = {X.shape}, y.shape = {y.shape}")
+
+  # 훈련 데이터 및 테스트 데이터로 분리 8:2
+  # 훈련 데이터 및 검증 데이터 분리 6:4
+  # 훈련 데이터 -> 학습, 검증 데이터 검증 -> 테스트 데이터
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) 
+
+  st.write("* 학습 데이터의 형태 확인 :  ")
+  st.write(f"X_train.shape = {X_train.shape}, X_test.shpae = {X_test.shape}, y_train.shape = {y_train.shape}, y_test.shpae = {y_test.shape}")
+
+  st.dataframe(X_train.head(), use_container_width=True)
+
+  # 데이터 전처리 - 원 핫 인코딩 
+  categorical_features = ['smoker', 'day', 'time']
+  numerical_features = ['total_bill', 'tip', 'size']
+
+  preprocessor = ColumnTransformer(
+    transformers=[
+      ('num', StandardScaler(), numerical_features),
+      ('cat', OneHotEncoder(), categorical_features)
+    ])
   
-  df = load_data()
-  st.dataframe(df, use_container_width=True)  # 데이터셋 출력, use_container_width=True: 전체 화면 너비에 맞춤
-  
-  
-  max_depth = st.select_slider('Select Max Depth', options=[i for i in range(2, 30)], value=(5, 10))
-  min_samples_leaf = st.slider('Minimum samples leaf', min_value=2, max_value=20) #, value=2, step=2)
-  
-  model, X_test, y_test = run_model(df, max_depth, min_samples_leaf)
-  y_test_pred, test_mae, r2 = predication(model, X_test, y_test)
-  prediction_plot(X_test, y_test, y_test_pred, test_mae, r2)
-  
-  st.write('Mean Absolute Error:', test_mae)
-  st.write('R2 Score:', r2)
-  
+  X_train = preprocessor.fit_transform(X_train)
+
+  st.write("* 전처리 후 학습 데이터의 형태 확인 :  ")
+  st.dataframe(pd.DataFrame(X_train).head(), use_container_width=True)
+
+  # 모델 만들기 
+  model = DecisionTreeClassifier()
+
+  # 파이프라인 만들기
+  pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
+  # pipeline.fit(X_train, y_train)
+
 if __name__ == '__main__':
   main()
