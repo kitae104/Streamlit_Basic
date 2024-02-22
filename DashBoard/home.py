@@ -13,7 +13,7 @@ def run_home():
   total_df['month'] = total_df['DEAL_YMD'].dt.month
   total_df = total_df.loc[total_df['HOUSE_TYPE'] == '아파트', :]
 
-  sgg_nm = st.sidebar.selectbox('자치구 선택', sorted(total_df['SGG_NM'].unique()))
+  sgg_nm = st.sidebar.selectbox('자치구 선택', (total_df['SGG_NM'].unique()))
   selected_month = st.sidebar.radio("확인하고 싶은 월을 선택하세요", ['12월', '1월'])
   month_dict = {'12월': 12, '1월': 1}
   st.markdown("<hr>", unsafe_allow_html=True)
