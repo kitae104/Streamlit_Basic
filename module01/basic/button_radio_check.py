@@ -3,12 +3,12 @@ import streamlit as st
 
 # 위젯
 # Buttons
-name = "kitae"
+name = "홍길동"
 if st.button("Submit"):
-  st.write(f"Name : {name.upper()}")
+  st.write(f"Upper : {name.upper()}")
 
 if st.button("Submit", key="new02"):
-  st.write(f"First Name : {name.lower()}")
+  st.write(f"Lower : {name.lower()}")
 
 # Radio
 status = st.radio("What is your status?", ("Active", "Inactive"))

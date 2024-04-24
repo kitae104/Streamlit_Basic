@@ -2,8 +2,8 @@
 import streamlit as st
 
 # 문자열 입력
-fname = st.text_input('이름을 입력하세요', '홍길동', max_chars=10)
-st.title(fname)
+name = st.text_input('이름을 입력하세요', '홍길동', max_chars=10)
+st.wirte(name)
 
 # 비밀번호 입력
 password = st.text_input('비밀번호를 입력하세요', type='password')
