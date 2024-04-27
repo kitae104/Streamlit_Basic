@@ -8,8 +8,7 @@ from sklearn.datasets import load_diabetes
 #---------------------------------#
 # Page layout
 ## Page expands to full width
-st.set_page_config(page_title='The Machine Learning App',
-    layout='wide')
+st.set_page_config(page_title='The Machine Learning App', layout='wide')
 
 #---------------------------------#
 # Model building
