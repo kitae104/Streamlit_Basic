@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg') # 그림을 표시하는 GUI 창을 열지 않고도 이미지를 생성(서버 환경에서 사용)
 
+import os
+from datetime import datetime
+
 from PIL import Image             # 이미지 메타데이터
 import exifread                   # 이미지 메타데이터
 import mutagen                    # 오디오 메타데이터
@@ -33,6 +36,24 @@ HTML_BANNER = """
 def load_image(image_file):
     img = Image.open(image_file)
     return img
+
+def get_readable_time(mytime):
+  return datetime.fromtimestamp(mytime).strftime('%Y-%m-%d %H:%M:%S')
+
+# Get Image GeoTags
+from PIL.ExifTags import TAGS, GPSTAGS
+def get_exif(filename):
+  exif = Image.open(filename)._getexif()
+
+  if exif is not None:
+    for key, value in exif.items():
+      name = TAGS.get(key, key)
+      exif[name] = exif.pop(key)
+
+    if 'GPSInfo' in exif:
+      for key in exif['GPSInfo'].keys():
+        name = GPSTAGS.get(key, key)
+        exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
 
 # 메인 함수
 def main(): 
@@ -73,10 +94,73 @@ def main():
     
   elif choice == "Image":
     st.subheader("Image Metadata Extraction")
+    image_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png', 'gif'])
+    if image_file is not None:
+      # st.write(type(image_file))
+      # st.write(dir(image_file))
+      with st.expander("File Stats"):
+        file_details = {"FileName":image_file.name, "FileType":image_file.type, "FileSize":image_file.size}
+        st.write(file_details)
+
+        statInfo = os.stat(image_file.readable())
+        st.write(statInfo)
+
+        stats_details = {"Accessed_Time" : get_readable_time(statInfo.st_atime), 
+                         "Creation_Time" : get_readable_time(statInfo.st_ctime), 
+                         "Modified_Time" : get_readable_time(statInfo.st_mtime)}
+        st.write(stats_details)
+
+        file_details_combined = {"FileName":image_file.name, "FileType":image_file.type, "FileSize":image_file.size,
+                                  "Accessed_Time" : get_readable_time(statInfo.st_atime), 
+                                  "Creation_Time" : get_readable_time(statInfo.st_ctime), 
+                                  "Modified_Time" : get_readable_time(statInfo.st_mtime)}
+        # Convert to DataFrame
+        df_file_details = pd.DataFrame(list(file_details_combined.items()), columns=['Meta Tags', 'Value'])
+
+        st.dataframe(df_file_details, use_container_width=True)
+
+      # 레이아웃 
+      c1, c2 = st.columns(2)
+      with c1:
+        with st.expander("View Image"):
+          img = load_image(image_file)
+          st.image(img, width=300, caption="Uploaded Image")
+      with c2:
+        with st.expander("Default(JPEG)"):
+          st.info("Using PILLOW")
+          img = load_image(image_file)
+          # st.write(dir(img))
+          img_details = {"format":img.format, 
+                         "mode":img.mode, 
+                         "size":img.size, 
+                         "format_description":img.format_description
+                        }
+          # st.write(img_details)
+
+          df_img_details_default = pd.DataFrame(list(img_details.items()), columns=['Meta Tags', 'Value'])
+          st.dataframe(df_img_details_default)
+
+      fcol1, fcol2 = st.columns(2)
+      with fcol1:
+        with st.expander("Exifread Tool"):
+          meta_tags = exifread.process_file(image_file)
+          # st.write(meta_tags)
+
+          df_img_details_exifread = pd.DataFrame(list(meta_tags.items()), columns=['Meta Tags', 'Value'])
+          st.dataframe(df_img_details_exifread)
+
+      with fcol2:
+        with st.expander("Image Geo-Coordinates"):
+          img_details_with_exif = get_exif(image_file)
+
+          
+
   elif choice == "Audio":
     st.subheader("Audio Metadata Extraction")
+
   elif choice == "Document":
     st.subheader("Document Metadata Extraction")
+
   else:
     st.subheader("About")
     
