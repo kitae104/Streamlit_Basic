@@ -11,11 +11,16 @@ matplotlib.use('Agg') # 그림을 표시하는 GUI 창을 열지 않고도 이�
 
 import os
 from datetime import datetime
+import base64
 
 from PIL import Image             # 이미지 메타데이터
 import exifread                   # 이미지 메타데이터
 import mutagen                    # 오디오 메타데이터
 from PyPDF2 import PdfFileReader  # PDF 메타데이터
+
+# 시간을 문자열로 변환
+import time
+timestr = time.strftime("%Y%m%d-%H%M%S")
 
 # HTML
 metadata_wiki = """
@@ -34,7 +39,7 @@ HTML_BANNER = """
 @st.cache_data      # 캐시를 사용하여 이미지를 한 번만 로드
 
 def load_image(image_file):
-    img = Image.open(image_file)
+    img = Image.open(image_file)  # 이미지 파일 읽어오기 
     return img
 
 def get_readable_time(mytime):
@@ -42,11 +47,12 @@ def get_readable_time(mytime):
 
 # Get Image GeoTags
 from PIL.ExifTags import TAGS, GPSTAGS
-def get_exif(filename):
-  exif = Image.open(filename)._getexif()
 
+def get_exif(filename):
+  exif = Image.open(filename)._getexif()  # 이미지 파일에서 정보 가져오기  
+  
   if exif is not None:
-    for key, value in exif.items():
+    for key, value in exif.items(): 
       name = TAGS.get(key, key)
       exif[name] = exif.pop(key)
 
@@ -54,6 +60,43 @@ def get_exif(filename):
       for key in exif['GPSInfo'].keys():
         name = GPSTAGS.get(key, key)
         exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+
+  return exif
+
+def get_coordinates(info):
+  for key in ['Latitude', 'Longitude']:
+    if 'GPS' + key in info and 'GPS'+ key + 'Ref' in info:
+      e = info['GPS'+key]
+      ref = info['GPS'+key+'Ref']
+      info[key] = ( str(e[0][0]/e[0][1]) + '°' +
+                    str(e[1][0]/e[1][1]) + '′' +
+                    str(e[2][0]/e[2][1]) + '″ ' +
+                    ref )
+
+    if 'Latitude' in info and 'Longitude' in info:
+        return [info['Latitude'], info['Longitude']] 
+
+def get_decimal_coordinates(info):
+  for key in ['Latitude', 'Longitude']:
+    if 'GPS'+ key in info and 'GPS' + key + 'Ref' in info:
+      e = info['GPS'+key]
+      ref = info['GPS'+key+'Ref']
+      info[key] = ( e[0][0]/e[0][1] +
+                    e[1][0]/e[1][1] / 60 +
+                    e[2][0]/e[2][1] / 3600 
+                  ) * (-1 if ref in ['S','W'] else 1)
+
+  if 'Latitude' in info and 'Longitude' in info:
+    return [info['Latitude'], info['Longitude']]
+
+# 데이터프레임을 받아와서 CSV 파일로 다운로드하는 함수
+def make_downloadable(data):
+  csvfile = data.to_csv(index=False)
+  b64 = base64.b64encode(csvfile.encode()).decode()  # b64 인코딩
+  st.markdown("### ** Download CSV File ** ")
+  new_filename = "metadata_result_{}.csv".format(timestr)
+  href = f'<a href="data:file/csv;base64,{b64}" download="{new_filename}">Click Here!</a>'
+  st.markdown(href, unsafe_allow_html=True)
 
 # 메인 함수
 def main(): 
@@ -152,8 +195,19 @@ def main():
       with fcol2:
         with st.expander("Image Geo-Coordinates"):
           img_details_with_exif = get_exif(image_file)
+          try:
+            gpg_info = img_details_with_exif
+          except:
+            gpg_info = "None Found"
 
-          
+          st.write(gpg_info)
+          # img_coordinates = get_decimal_coordinates(gpg_info)
+          # st.write(img_coordinates)
+
+      with st.expander("Download Results"):
+        final_df = pd.concat([df_file_details, df_img_details_default, df_img_details_exifread], axis=0)
+        st.dataframe(final_df)
+        make_downloadable(final_df)
 
   elif choice == "Audio":
     st.subheader("Audio Metadata Extraction")
