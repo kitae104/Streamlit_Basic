@@ -1,21 +1,23 @@
 import streamlit as st
 import serial
+import time
 
-# 웹 페이지 제목 설정
-st.title("Streamlit WebSerial 예제")
+st.title("Serial Test")
 
-# 사용 가능한 시리얼 포트 목록 가져오기
-ser = serial.Serial(
-    port = 'COM6', 
-    baudrate=9600, 
-    parity='N',
-    stopbits=1,
-    bytesize=8,
-    timeout=8
-    )
+# 시리얼 포트 설정 (보드레이트는 마이크로비트와 동일하게 맞춰야 함)
+ser = serial.Serial('COM3', 9600)
 
-#시리얼포트 접속
-ser.isOpen()
-
-#시리얼포트 번호 출력
-st.write(ser.name)
+# 입력된 키에 따라 문자열 전송
+if st.button("LED ON", key='1'):
+    ser.write("on\n".encode())
+    st.write("LED ON")
+    time.sleep(0.5)
+if st.button("LED OFF", key='2'):
+    ser.write("off\n".encode())
+    st.write("LED OFF")
+    time.sleep(0.5)
+if st.button("TEST", key='3'):
+    ser.write("test\n".encode())
+    st.write("TEST")
+    time.sleep(0.5)
+    
