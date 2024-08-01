@@ -29,8 +29,9 @@ print('Start reading accelerometer data...')
 while True:
     try:
         data = ser.read()
-        unicode_char = data.decode('utf-8')  # 'ö'
-        x_value = ord(unicode_char) 
+        x_value = int.from_bytes(data, byteorder='big', signed=True)
+        # unicode_char = data.decode('utf-8')  # 'ö'
+        # x_value = ord(unicode_char) 
         print(x_value)
         # acc_x, acc_y, acc_z = map(float, data.split(','))
         # print(f'X: {acc_x}, Y: {acc_y}, Z: {acc_z}')
