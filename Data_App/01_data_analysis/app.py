@@ -1,21 +1,4 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.39.0/build/stlite.css">
-  <title>CodeWalks Web Service</title>
-</head>
-<body>
-  <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable/build/stlite.js"></script>
-  <div id="root"></div>
-  <script>
-    var st = stlite.mount({
-      requirements: ["pandas", "graphviz", "requests", "matplotlib", "numpy", "pydeck", "streamlit", "ssl", 'joblib', 'scikit-learn', 'seaborn'],
-      entrypoint: "app.py",
-      files: {
-        "app.py": `
+# -*- coding:utf-8 -*-
 import streamlit as st 
 import streamlit.components.v1 as stc 
 import pandas as pd
@@ -134,9 +117,4 @@ def main():
         st.subheader("About")
         
 if __name__ == "__main__":
-    main()`
-      }
-    }, document.getElementById('root'));
-  </script>
-</body>
-</html>
+    main()
