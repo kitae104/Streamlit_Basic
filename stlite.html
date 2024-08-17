@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.39.0/build/stlite.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&family=Noto+Sans+KR:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Gothic&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
   <title>CodeWalks Web Service</title>
 </head>
 <body>
@@ -20,47 +20,35 @@
       entrypoint: "app.py",
       files: {
         "app.py": `
-import streamlit as st 
-import matplotlib.pyplot as plt 
-import seaborn as sns 
-import numpy as np 
-
-# 한글폰트 적용
-# 폰트 적용
-import os
-import matplotlib.font_manager as fm  # 폰트 관련 용도 as fm
-
-
-
-st.markdown("""
-<style>
-@import url('fonts.googleapis.com/css2?family=Nanum+Gothic&family=Noto+Sans+KR&display=swap');
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-def unique(list):
-    x = np.array(list)
-    return np.unique(x)
-
+import streamlit as st
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 
 def main():
-  
-    fontNames = [f.name for f in fm.fontManager.ttflist]
-    fontname = st.selectbox("폰트 선택", unique(fontNames))
+    # 폰트 파일 업로드
+    uploaded_file = st.file_uploader("한글 폰트 파일 업로드", type=["ttf"])
 
-    plt.rc('font', family=fontname)
-    tips = sns.load_dataset("tips")
-    fig, ax = plt.subplots()
-    sns.scatterplot(data=tips, x = 'total_bill', y = 'tip', hue='day')
-    ax.set_title("한글 테스트")
-    st.pyplot(fig)
-    
-    st.dataframe(tips)
-    
+    if uploaded_file is not None:
+        with open(uploaded_file.name, 'wb') as f:
+            f.write(uploaded_file.getbuffer())
+
+        # 업로드된 폰트 파일 경로 설정
+        font_path = uploaded_file.name
+
+        # 폰트 등록
+        font_prop = fm.FontProperties(fname=font_path)
+
+        # Matplotlib 설정
+        plt.rcParams['font.family'] = font_prop.get_name()
+
+        # 한글이 포함된 그래프 생성
+        plt.figure(figsize=(8, 6))
+        plt.plot(["서울", "대전", "대구", "부산"], [1, 4, 9, 16])
+        plt.title("한글 폰트 적용 Test", fontproperties=font_prop)
+        plt.xlabel("x축", fontproperties=font_prop)
+        plt.ylabel("y축", fontproperties=font_prop)
+        plt.xticks(fontproperties=font_prop)
+        st.pyplot(plt)
 
 if __name__ == "__main__":
     main()`
