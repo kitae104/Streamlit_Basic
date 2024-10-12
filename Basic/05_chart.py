@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
+# 페이지 제목과 아이콘 설정
+st.set_page_config(page_title="스트림잇", page_icon=":sunglasses:")
+
 plt.rcParams["font.family"] = "NanumGothic"
 plt.rcParams["axes.unicode_minus"] = False
 
@@ -24,7 +27,7 @@ ax.bar(data["이름"], data["나이"])
 st.pyplot(fig)
 
 # seaborn 그래프 그리기
-barplot = sns.barplot(x="이름", y="나이", data=data, ax=ax, palette="Set2")
+barplot = sns.barplot(x="이름", y="나이", data=data, ax=ax, hue="이름", palette="Set2", legend=False)
 fig = barplot.get_figure()
 
 st.pyplot(fig)
