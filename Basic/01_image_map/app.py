@@ -2,6 +2,27 @@ import streamlit as st
 
 st.set_page_config(page_title="이미지 모음", page_icon="./images/logo.png")
 
+st.markdown("""
+<style>
+h1 {
+    color: #FF0000;
+}  
+img {
+    max-height: 300px;
+}  
+.stExpander div {
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+}
+[data-testid='datastExpanderToggleIcon'] {
+    visibility: hidden;        
+}            
+
+</style>
+""", unsafe_allow_html=True) 
+
+
 st.title("Streamlit을 이용한 이미지 모음")
 st.markdown("**:red[이미지]** 를 하나씩 추가해서 **:blue[스타의 사진]** 을 정리하세요.")
 
@@ -21,7 +42,7 @@ mbti_emoji_dict = {
     "ISTP": ":scream:",
 }
 
-my_stars = [
+init_my_stars = [
     {
         "name": "카리나",
         "mbti": "ENTP",
@@ -44,13 +65,29 @@ my_stars = [
     },
 ]
 
+example_star = {
+    "name": "라이언",
+    "mbti": "ENTP",
+    "image_url": "https://i.namu.wiki/i/qkyqIPNtVxlT_imBEI2g9EzINfuo44pszLQrhac-KMmMls2m3TQBjQrfT251bKldEsV2_um8vDLUYAWNCUbj1A.webp",
+}
+
+# 세션에 추가 : 계속 내용을 유지하기 위해 세션 사용(새로 고침시 초기화) 
+if "my_stars" not in st.session_state: 
+    st.session_state.my_stars = init_my_stars # 초기값 설정
+
+auto_complete = st.toggle("자동 완성 기능", value=True)
+print("")
+
 with st.form(key="my_form"):
     col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input(label="스타 이름")
+        name = st.text_input(label="스타 이름", 
+                    value=example_star["name"] if auto_complete else "", key="name")
     with col2:
-        mbti = st.selectbox(label="MBTI 선택", options=list(mbti_emoji_dict.keys()))
-    image_url = st.text_input(label="이미지 URL")
+        mbti = st.selectbox(label="MBTI 선택", options=list(mbti_emoji_dict.keys()),                             
+                    index=list(mbti_emoji_dict.keys()).index(example_star["mbti"]) if auto_complete else 0, key="mbti")
+    image_url = st.text_input(label="이미지 URL", 
+                    value=example_star["image_url"] if auto_complete else "", key="image_url")
     submitted = st.form_submit_button(label="등록")
 
     # 제출 버튼을 누르면 my_stars에 추가
@@ -60,7 +97,9 @@ with st.form(key="my_form"):
             st.error("스타 이름을 입력해주세요.")
         else:
             st.success(f"{name}님을 추가했습니다.")
-            my_stars.append(
+
+            # 세션에 추가 : 계속 내용을 유지하기 위해 세션 사용 
+            st.session_state.my_stars.append(
                 {
                     "name": name,
                     "mbti": mbti,
@@ -70,8 +109,8 @@ with st.form(key="my_form"):
 
 
 
-for i in range(0, len(my_stars), 3):  # 3개씩 묶어서 출력
-    row_my_stars = my_stars[i : i + 3]  # 3개씩 묶어서 출력
+for i in range(0, len(st.session_state.my_stars), 3):  # 3개씩 묶어서 출력
+    row_my_stars = st.session_state.my_stars[i : i + 3]  # 3개씩 묶어서 출력
     cols = st.columns(3)  # 3개의 컬럼 생성
     for j in range(len(row_my_stars)):
         with cols[j]:
@@ -82,3 +121,7 @@ for i in range(0, len(my_stars), 3):  # 3개씩 묶어서 출력
                 st.image(my_star["image_url"], use_column_width=True)
                 emoji_types = f'{mbti_emoji_dict[my_star["mbti"]]} {my_star["mbti"]}'
                 st.subheader("".join(emoji_types))
+                delete_button = st.button("삭제", key=f'{i + j}.', use_container_width=True)
+                if delete_button:
+                    del st.session_state.my_stars[i + j]
+                    st.rerun()
