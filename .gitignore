@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 
 .env
+/Basic/02_geo_map/data
