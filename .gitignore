@@ -153,3 +153,7 @@ cython_debug/
 
 .env
 /Basic/02_geo_map/data
+*.png
+*.jpg
+*.mp4
+*.pt
