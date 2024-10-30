@@ -21,3 +21,6 @@ streamlit-option-menu
 millify
 pingouin
 jupyterlab
+
+#### 서버 포트 설정
+streamlit run your_script.py --server.port 8502
