@@ -6,14 +6,14 @@ import numpy as np
 st.title('데이터 분석 애플리케이션')
 
 # DataFrame 생성 (내용 변경)
-dataframe = pd.DataFrame({
+df = pd.DataFrame({
     'Product': ['A', 'B', 'C', 'D'],
     'Sales': [100, 150, 200, 250],
 })
 
 # DataFrame 출력
 # use_container_width=True로 설정하여 데이터프레임이 전체 화면 너비를 차지하도록 변경
-st.dataframe(dataframe, use_container_width=False)
+st.dataframe(df, use_container_width=False)
 
 # 테이블(static) 출력 (내용 유지)
 # DataFrame과는 다르게 interactive 한 UI 를 제공하지 않습니다.
