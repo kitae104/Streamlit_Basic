@@ -65,6 +65,6 @@ fig = plt.figure(figsize=(len(code) * pixel_per_bar / dpi, 2), dpi=dpi)
 ax = fig.add_axes([0, 0, 1, 1])  # span the whole figure
 ax.set_axis_off()
 ax.imshow(code.reshape(1, -1), cmap='binary', aspect='auto',
-          interpolation='nearest')
+    interpolation='nearest')
 
 st.pyplot(fig)
