@@ -21,15 +21,15 @@ SOURCES_LIST = [IMAGE, VIDEO]
 
 #Image 
 IMAGES_DIR = ROOT/'images'
-DEFAULT_IMAGE = IMAGES_DIR/'image1.jpg'
+DEFAULT_IMAGE = IMAGES_DIR/'1/1.png'
 DEFAULT_DETECT_IMAGE = IMAGES_DIR/'detectedimage1.jpg'
 
 
 #Videos 
 VIDEO_DIR = ROOT/'videos'
 VIDEOS_DICT = {
-    'video 1': VIDEO_DIR/'video1.mp4',
-    'video 2': VIDEO_DIR/'video2.mp4'
+    'video 1': VIDEO_DIR/'bicycle.mp4',
+    'video 2': VIDEO_DIR/'ppe1.mp4'
 }
 
 #Model 
