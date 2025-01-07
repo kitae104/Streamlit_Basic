@@ -5,26 +5,38 @@ import sys
 from ultralytics import YOLO
 from PIL import Image
 
+FILE = Path(__file__).resolve() # 현재 파일 경로
+
+ROOT = FILE.parent  # 현재 파일의 부모 경로
+
+if ROOT not in sys.path:
+    sys.path.append(str(ROOT)) # 부모 경로를 sys.path에 추가
+
+ROOT = ROOT.relative_to(Path.cwd()) # 상대 경로로 변경
+
 IMAGE = 'Image'
 VIDEO = 'Video'
 
 SOURCES_LIST = [IMAGE, VIDEO]
 
 #Image 
-DEFAULT_IMAGE = 'image1.jpg'
-DEFAULT_DETECT_IMAGE = 'detectedimage1.jpg'
+IMAGES_DIR = ROOT/'images'
+DEFAULT_IMAGE = IMAGES_DIR/'1/1.png'
+DEFAULT_DETECT_IMAGE = IMAGES_DIR/'detectedimage1.jpg'
 
 
 #Videos 
+VIDEO_DIR = ROOT/'videos'
 VIDEOS_DICT = {
-    'video 1': 'bicycle.mp4',
-    'video 2': 'ppe1.mp4'
+    'video 1': VIDEO_DIR/'bicycle.mp4',
+    'video 2': VIDEO_DIR/'ppe1.mp4'
 }
 
 #Model 
-DETECTION_MODEL = 'yolo11n.pt'
-SEGMENTATION_MODEL  = 'yolo11n-seg.pt'
-POSE_ESTIMATION_MODEL = 'yolo11n-pose.pt'
+MODEL_DIR = ROOT/'models'
+DETECTION_MODEL = MODEL_DIR/'yolo11n.pt'
+SEGMENTATION_MODEL  = MODEL_DIR/'yolo11n-seg.pt'
+POSE_ESTIMATION_MODEL = MODEL_DIR/'yolo11n-pose.pt'
 
 
 # 페이지 설정 
