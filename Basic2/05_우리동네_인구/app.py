@@ -27,8 +27,8 @@ if findDong:
     # 데이터 추출
     if not filtered_df.empty:
         for _, row in filtered_df.iterrows():
-            male_data = [-int(i) for i in row[3:104]]  # 남성 데이터 (음수로 변환)
-            female_data = [int(i) for i in row[106:]]  # 여성 데이터
+            male_data = [-int(str(i).replace(',', '')) for i in row[3:104]]  # 남성 데이터 (음수로 변환)
+            female_data = [int(str(i).replace(',', '')) for i in row[106:207]]  # 여성 데이터
 
     # 데이터가 없으면 에러 메시지 출력
     if not male_data or not female_data:
