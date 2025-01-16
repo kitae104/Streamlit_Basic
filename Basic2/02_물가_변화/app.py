@@ -16,34 +16,34 @@ if uploaded_file is not None:
     except FileNotFoundError:
         st.error("CSV 파일을 찾을 수 없습니다. 파일 이름과 경로를 확인해 주세요.")
 
-    # 사용자 입력
-    foods = df.loc[:, '품목별']  # 품목별 데이터 추출 
-    food = st.selectbox("어떤 간식의 가격 변화를 보고 싶나요?", foods)
-    st.write(f"선택한 간식: {food}")
+    # 품목 리스트 생성
+    food_items = df['품목별'].tolist()
+    selected_items = st.multiselect("확인하고 싶은 품목을 선택하세요", options=food_items, default=food_items)
 
+    # 그래프 그리기
+    if selected_items:
+        plt.rc('font', family='Malgun Gothic')  # 한글 폰트 설정
+        plt.figure(figsize=(10, 6))
 
-    if True:
-        # 데이터 필터링
-        price = list(df[df['품목별']==food].values[0])  # 선택한 간식의 가격 데이터 추출
-        price = price[1:]  # 품목별 열 제외
-        
-        # st.write(price) # 가격 데이터 출력
-        # price = [float(item) for item in price]  # 문자열을 실수로 변환
-        
-        price = [0 if item == '-' else float(item) for item in price] # '-'을 0으로 변환 
-        years = list(range(2003, 2003 + len(price)))  # 데이터 기간 추정
-        years = [str(item) for item in years]
+        for food in selected_items:
+            # 선택된 품목에 대한 데이터 필터링
+            price = df[df['품목별'] == food].values[0][1:]  # 품목별 열 제외
+            price = [0 if item == '-' else float(item) for item in price]  # '-'을 0으로 변환
+            years = list(range(2003, 2003 + len(price)))  # 데이터 기간 추정
+            years = [str(year) for year in years]
 
-        # 그래프 그리기
-        plt.rc('font', family='Malgun Gothic')    
-        plt.plot(years, price, label = food)
+            # 그래프 추가
+            plt.plot(years, price, label=food)
+
+        # 그래프 세부 설정
         plt.xlabel('연도')
         plt.ylabel('물가지수')
         plt.xticks(rotation=45)
-        plt.title(food + '의 물가 변화')
-        plt.legend()
+        plt.title('선택한 간식의 가격 변화')
+        plt.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='small')
+        plt.tight_layout()
 
         # Streamlit에 그래프 표시
         st.pyplot(plt)
     else:
-        st.write("선택한 품목의 데이터를 찾을 수 없습니다.")
+        st.write("선택한 품목이 없습니다. 품목을 선택해주세요.")
